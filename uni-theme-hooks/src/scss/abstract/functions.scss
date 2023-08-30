@@ -1,0 +1,29 @@
+@use "sass:math";
+@use "sass:map";
+
+$default-min-bp: 350px;
+$default-max-bp: 1512px;
+
+@function to-rems($px) {
+  $rems: math.div($px, 16px) * 1rem;
+  @return $rems;
+}
+
+@function rnd($number, $places: 0) {
+  $n: 1;
+  @if $places > 0 {
+    @for $i from 1 through $places {
+      $n: $n * 10;
+    }
+  }
+  @return math.div(math.round($number * $n), $n);
+}
+
+@function clamped($min-px, $max-px, $min-bp: $default-min-bp, $max-bp: $default-max-bp) {
+  $slope: math.div($max-px - $min-px, $max-bp - $min-bp);
+  $slope-vw: rnd($slope * 100, 2);
+  $intercept-rems: rnd(to-rems($min-px - $slope * $min-bp), 2);
+  $min-rems: rnd(to-rems($min-px), 2);
+  $max-rems: rnd(to-rems($max-px), 2);
+  @return clamp(#{$min-rems}, #{$slope-vw}vw + #{$intercept-rems}, #{$max-rems});
+}
